@@ -12,8 +12,8 @@ data ItemForm = ItemForm
 
 itemForm :: Form ItemForm
 itemForm = renderBootstrap $ ItemForm
-    <$> areq textField "Name" Nothing
-    <*> areq intField "Price" Nothing
+    <$> areq textField "Name" (Just "こんにちは")
+    <*> areq intField "Price" (Just 1)
     <*> areq boolField "Available" Nothing
     <*> aopt textField "Memo" Nothing
 
@@ -24,4 +24,10 @@ getFormTestR = do
     defaultLayout widget
 
 postFormTestR :: Handler RepHtml
-postFormTestR = error "Not yew implemented: postFormTestR"
+postFormTestR = do
+    ((formResult, formWidget), formEnctype) <- runFormPost itemForm
+    case formResult of
+        FormMissing -> liftIO $ print "Form MISSING"
+        FormFailure ts -> liftIO $ print ts
+        FormSuccess itemForm -> liftIO $ print itemForm
+    defaultLayout $ $(widgetFile "form")
